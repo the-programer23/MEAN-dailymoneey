@@ -7,7 +7,7 @@ module.exports = class Email {
         (this.to = user.email),
         (this.firstName = user.firstName),
         (this.url = url),
-        (this.from = `Fabian Pinzon <${process.env.EMAIL_FROM}>`);
+        (this.from = `Grupo DailyMoneey <${process.env.EMAIL_FROM}>`);
     }
 
     newTransport() {
@@ -53,10 +53,18 @@ module.exports = class Email {
     }
 
     async sendWelcome() {
-        this.send('welcome', 'Bienvenido a la familia de Natours!');
+        this.send('welcome', 'Bienvenido a la familia de DailyMoneey!');
     }
 
     async sendPassworReset() {
         this.send('passwordReset', 'Restablecer contraseña')
+    }
+
+    async sendPasswordChanged() {
+        this.send('passwordChanged', 'La contraseña fue cambiada')
+    }
+
+    async sendConfirmEmail() {
+        this.send('emailConfirm', 'Confirma tu email')
     }
 };

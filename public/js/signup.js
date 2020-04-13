@@ -1,8 +1,10 @@
 import '@babel/polyfill';
 import axios from 'axios';
+import showAlert from './alert'
 
-export const signup = async (firstName, lastName, email, travelAgencyName, password, confirmPassword) => {
+export const signup = async (firstName, lastName, email, phoneNumber, password, confirmPassword) => {
     try {
+        console.log('try block signup')
         const res = await axios({
             method: 'POST',
             url: '/api/v1/users/signup',
@@ -10,7 +12,7 @@ export const signup = async (firstName, lastName, email, travelAgencyName, passw
                 firstName,
                 lastName,
                 email,
-                travelAgencyName,
+                phoneNumber,
                 password,
                 confirmPassword
             }
@@ -18,11 +20,9 @@ export const signup = async (firstName, lastName, email, travelAgencyName, passw
 
         if (res.data.status === 'success') {
 
-            const firstName = name.firstName
-
-            location.assign(`/?alert=signup&name=${firstName}&email=${email}`);
-            // const firstName = name.split(' ')[0]
-            // showAlertSignup('success', `Muy bien, ${firstName}. ¡Ya te registraste! Ahora verifica la bandeja de entrada de tu e-mail ${email} o en en Spam para confirmar tu cuenta`);
+            location.assign(`/me/?alert=signup&name=${firstName}&email=${email}`);
+            const fName = firstName.split(' ')[0]
+            showAlert('success', `Muy bien, ${fName}. ¡Ya te registraste! Ahora verifica la bandeja de entrada de tu e-mail ${email} o en en Spam para confirmar tu cuenta`, 120);
         }
 
     } catch (err) {

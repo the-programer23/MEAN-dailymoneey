@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema({
     review: {
@@ -15,11 +14,6 @@ const reviewSchema = new mongoose.Schema({
         type: Date,
         default: Date.now()
     },
-    tour: [{
-        type: mongoose.Schema.ObjectId,
-        ref: 'Tour',
-        required: [true, 'Tu opinión debe hacer parte de un tour']
-    }],
     user: [{
         type: mongoose.Schema.ObjectId,
         ref: 'User',
@@ -59,38 +53,38 @@ reviewSchema.pre(/^find/, function (next) {
     next();
 })
 
-reviewSchema.statics.calcAverageRatings = async function (tourId) {
-    const stats = await this.aggregate([{
-            $match: {
-                tour: tourId
-            }
-        },
-        {
-            $group: {
-                _id: 'tour',
-                nRating: {
-                    $sum: 1
-                },
-                avgRating: {
-                    $avg: '$rating'
-                }
-            }
-        }
-    ]);
+// reviewSchema.statics.calcAverageRatings = async function (tourId) {
+//     const stats = await this.aggregate([{
+//             $match: {
+//                 tour: tourId
+//             }
+//         },
+//         {
+//             $group: {
+//                 _id: 'tour',
+//                 nRating: {
+//                     $sum: 1
+//                 },
+//                 avgRating: {
+//                     $avg: '$rating'
+//                 }
+//             }
+//         }
+//     ]);
 
-    if (stats.length > 0) {
-        await Tour.findByIdAndUpdate(tourId, {
-            ratingsAverage: stats[0].avgRating,
-            ratingsQuantity: stats[0].nRating
-        });
-    } else {
-        await Tour.findByIdAndUpdate(tourId, {
-            ratingsAverage: 0,
-            ratingsQuantity: 4.5
-        });
-    }
+//     if (stats.length > 0) {
+//         await Tour.findByIdAndUpdate(tourId, {
+//             ratingsAverage: stats[0].avgRating,
+//             ratingsQuantity: stats[0].nRating
+//         });
+//     } else {
+//         await Tour.findByIdAndUpdate(tourId, {
+//             ratingsAverage: 0,
+//             ratingsQuantity: 4.5
+//         });
+//     }
 
-};
+// };
 
 reviewSchema.pre(/^findOneAnd/, async function (next) {
     this.review = await this.findOne()

@@ -32,7 +32,12 @@ export const logout = async () => {
       method: 'GET',
       url: '/api/v1/users/logout'
     })
-    if (res.data.status === 'success') location.reload(true)
+    if (res.data.status === 'success') {
+      location.reload(true);
+      location.assign('/');
+      window.history.forward(1);
+
+    }
   } catch (err) {
     showAlert('error', 'No pude cerrar tu sesión, por favor intenta de nuevo');
   }

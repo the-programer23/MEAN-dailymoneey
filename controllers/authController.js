@@ -9,20 +9,21 @@ const Email = require('./../utils/mail');
 
 const jwt = require('jsonwebtoken');
 
-const signToken = id => {
+const signToken = (id, expDay) => {
   return jwt.sign({
       id: id
     },
     process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN
+      expiresIn: expDay
     }
   );
 };
 
 const createSendToken = (user, statusCode, req, res) => {
-  const token = signToken(user._id);
+  const token = signToken(user._id, process.env.JWT_EXPIRES_IN);
 
   const cookieOptions = {
+    // Milliseconds when the user was created + x Milliseconds (90 days in this case) 
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
@@ -55,12 +56,12 @@ exports.logout = (req, res) => {
 };
 
 exports.signup = catchASync(async (req, res, next) => {
-
+  console.log('signup function')
   const {
     firstName,
     lastName,
     email,
-    travelAgencyName,
+    phoneNumber,
     password,
     confirmPassword,
   } = req.body
@@ -69,12 +70,15 @@ exports.signup = catchASync(async (req, res, next) => {
     firstName,
     lastName,
     email,
-    travelAgencyName,
+    phoneNumber,
     password,
     confirmPassword,
   });
 
-  const url = `${req.protocol}://${req.get('host')}/me`
+  // const url = `${req.protocol}://${req.get('host')}/`
+  const emailToken = signToken(newUser._id, '3d');
+  const url = `${req.protocol}://${req.get('host')}/emailConfirmed/${emailToken}`
+
   await new Email(newUser, url).sendWelcome()
   createSendToken(newUser, 201, req, res);
 });
@@ -103,6 +107,8 @@ exports.isLoggedIn = async (req, res, next) => {
       //There is a logged in user
       //With this code the .pug files will have access to the user data
       res.locals.user = currentUser;
+      req.user = currentUser;
+
       return next();
     }
   } catch (err) {
@@ -132,6 +138,7 @@ exports.login = catchASync(async (req, res, next) => {
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError('Email o contraseña invalido', 401));
   }
+
   createSendToken(user, 200, req, res);
 });
 
@@ -143,6 +150,7 @@ exports.protect = catchASync(async (req, res, next) => {
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
+    //this gets the jbt from the browser cookie
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
   }
@@ -255,9 +263,8 @@ exports.resetPassword = catchASync(async (req, res, next) => {
   user.passwordResetExpires = undefined;
 
   await user.save();
-  //3) Update passwordChangedAt property for the user with the new
 
-  //4) Log User in, send JWT
+  //3) Log User in, send JWT
   createSendToken(user, 200, req, res);
 });
 
@@ -276,6 +283,7 @@ exports.updatePassword = catchASync(async (req, res, next) => {
   user.confirmPassword = req.body.passwordConfirm;
 
   await user.save();
+  await new Email(user).sendPasswordChanged()
   //4)Log user in, send jwt
   createSendToken(user, 200, req, res);
 });

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
   },
   lastName: {
     type: String,
-    required: [true, 'Por favor ingresa tu apellido']
+    required: [true, 'Por favor ingresa tus apellidos']
   },
   email: {
     type: String,
@@ -19,9 +19,10 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: [validator.isEmail, 'Por favor ingresa un email válido']
   },
-  travelAgencyName: {
-    type: String,
-    required: [true, 'Por favor ingresa el nombre de tu agencia de viajes']
+  phoneNumber: {
+    type: Number,
+    required: [true, 'Por favor ingresa el número de tu móvil'],
+    unique: true
   },
   photo: {
     type: String,
@@ -29,8 +30,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'guide', 'lead-guide', 'admin'],
-    default: 'admin'
+    enum: ['user', 'admin'],
+    default: 'user'
   },
   password: {
     type: String,
@@ -56,6 +57,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
     select: false
+  },
+  emailConfirmed: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -119,6 +124,7 @@ userSchema.methods.createPasswordResetToken = function () {
     .update(resetToken)
     .digest('hex');
 
+  //reset token expires in 10 minutes
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
 
   return resetToken;

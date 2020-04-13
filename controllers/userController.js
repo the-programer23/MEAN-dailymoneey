@@ -1,8 +1,8 @@
 const multer = require('multer');
 const sharp = require('sharp');
-const AppError = require('./../utils/appError');
-const catchAsync = require('./../utils/catchAsync');
-const User = require('./../models/userModel');
+const AppError = require('../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+const User = require('../models/userModel');
 const factory = require('./handlerFactory');
 const Email = require('../utils/mail');
 
@@ -76,10 +76,11 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   //2) Filtered out unwated fields names that are not allowed to be updated
-  const filteredBody = filterObj(req.body, 'firstName', 'lastName', 'email', 'travelAgencyName');
+  const filteredBody = filterObj(req.body, 'firstName', 'lastName', 'email', 'travelAgencyName', 'phoneNumber');
   // this is like saying filteredBody = { name: req.body.name, email: req.body.email }
   //filteredBody.photo adds photo propety to filteredBody object and set it = to  req.file.filename 
   //{ name: req.body.name, email: req.body.email, photo: req.file.filename  }
+
   if (req.file) {
     filteredBody.photo = req.file.filename;
   }
@@ -117,6 +118,8 @@ exports.createUser = (req, res) => {
     message: 'This route is not yet defined'
   });
 };
+
+
 
 exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);

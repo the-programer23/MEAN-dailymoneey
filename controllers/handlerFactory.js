@@ -2,6 +2,16 @@ const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
 const APIFeatures = require('./../utils/apiFeatures');
 
+const filterObj = (obj, ...allowedFields) => {
+    const newObj = {};
+    Object.keys(obj).forEach(el => {
+        if (allowedFields.includes(el)) {
+            newObj[el] = obj[el];
+        }
+    });
+    return newObj;
+};
+
 exports.getAll = Model => catchAsync(async (req, res, next) => {
     let filter = {};
     if (req.params.tourId) {
@@ -30,7 +40,11 @@ exports.getAll = Model => catchAsync(async (req, res, next) => {
 });
 
 exports.createOne = Model => catchAsync(async (req, res, next) => {
-    const doc = await Model.create(req.body);
+
+    const filteredBody = filterObj(req.body, 'name', 'duration', 'maxGroupSize', 'difficulty', 'price', 'summary', 'description')
+
+    const doc = await Model.create(filteredBody);
+
     res.status(201).json({
         status: 'success',
         data: {

@@ -12,12 +12,11 @@ const cors = require('cors');
 
 const AppError = require('./utils/appError.js');
 const globalErrorHandler = require('./controllers/errorController');
-const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
-const bookingRouter = require('./routes/bookingRoutes');
+const bookingRouter = require('./routes/membershipRoutes');
 const viewRouter = require('./routes/viewRoutes');
-const bookingController = require('./controllers/bookingController');
+const bookingController = require('./controllers/membershipController');
 
 // Start app
 const app = express();
@@ -78,18 +77,18 @@ app.use(mongoSanitize());
 app.use(xss());
 
 // Prevent parameter pollution
-app.use(
-  hpp({
-    whitelist: [
-      'duration',
-      'ratingsAverage',
-      'ratingsQuantity',
-      'maxGroupSize',
-      'difficulty',
-      'price',
-    ],
-  })
-);
+// app.use(
+//   hpp({
+//     whitelist: [
+//       'duration',
+//       'ratingsAverage',
+//       'ratingsQuantity',
+//       'maxGroupSize',
+//       'difficulty',
+//       'price',
+//     ],
+//   })
+// );
 
 app.use(compression());
 
@@ -102,10 +101,9 @@ app.use((req, res, next) => {
 
 // 3) Routes
 app.use('/', viewRouter);
-app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
-app.use('/api/v1/bookings', bookingRouter);
+app.use('/api/v1/tickets', bookingRouter);
 
 app.all('*', (req, res, next) => {
   // const err = new Error(

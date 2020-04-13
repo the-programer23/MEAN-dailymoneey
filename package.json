@@ -1,7 +1,7 @@
 {
-  "name": "natours",
+  "name": "dailymoneey",
   "version": "1.0.0",
-  "description": "Learning Node, express and mongoDB",
+  "description": "A project for my cousin Naren",
   "main": "app.js",
   "scripts": {
     "start": "node server.js",
